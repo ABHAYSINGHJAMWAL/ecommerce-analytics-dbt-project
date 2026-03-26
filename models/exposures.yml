@@ -1,0 +1,43 @@
+version: 2
+
+exposures:
+
+  - name: product_dashboard
+    type: dashboard
+    maturity: high
+    description: "Dashboard used by product team to track growth and engagement"
+
+    depends_on:
+      - ref('mart_product_metrics')
+      - ref('mart_growth_metrics')
+
+    owner:
+      name: Product Analytics Team
+      email: product@company.com
+
+
+  - name: revenue_dashboard
+    type: dashboard
+    maturity: high
+    description: "Revenue performance dashboard"
+
+    depends_on:
+      - ref('fct_revenue')
+      - ref('mart_monthly_revenue')
+
+    owner:
+      name: Finance Analytics Team
+      email: finance@company.com
+
+
+  - name: retention_dashboard
+    type: dashboard
+    maturity: medium
+    description: "User retention cohort analysis dashboard"
+
+    depends_on:
+      - ref('mart_user_retention')
+
+    owner:
+      name: Growth Team
+      email: growth@company.com
