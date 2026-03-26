@@ -1,28 +1,40 @@
-{{ config(materialized = 'table') }}
+{{ config(
+    materialized = 'table',
+    partition_by = {
+        "field": "order_date",
+        "data_type": "date",
+        "granularity": "day"
+    },
+    cluster_by = ["user_id"]
+) }}
 
-with orders as (
-    select * from  {{ ref('int_orders_enriched') }}
-
+WITH orders AS (
+    SELECT * 
+    FROM {{ ref('int_orders_enriched') }}
 ),
 
-refunds as (
-    select *
-    from {{ ref('int_order_refunds') }}
-
+refunds AS (
+    SELECT *
+    FROM {{ ref('int_order_refunds') }}
 ),
 
-joined as (
-    select
-   o.order_id,o.user_id,o.order_timestamp,o.order_amount,o.currency,o.country,o.acquisition_channel,
-    coalesce(r.total_refunded_amount,0) as total_refund_amount,
-    greatest(o.order_amount - coalesce(r.total_refunded_amount,0),0) as net_revenue
-   from orders o
-   left join refunds r
-   on o.order_id = r.order_id
-{% if is_incremental() %}
-where o.order_timestamp > (select max(order_timestamp) from {{ this }} )
-{% endif %}
+joined AS (
+    SELECT  o.order_id, o.user_id, o.order_timestamp, DATE(o.order_timestamp) AS order_date,  o.order_amount,
+        o.currency,
+        o.country,
+        o.acquisition_channel,
 
+        COALESCE(r.total_refunded_amount, 0) AS total_refund_amount,
+
+        GREATEST(
+            o.order_amount - COALESCE(r.total_refunded_amount, 0),
+            CAST(0 AS NUMERIC)
+        ) AS net_revenue
+
+    FROM orders o
+    LEFT JOIN refunds r
+        ON o.order_id = r.order_id
 )
-select *
-from joined
+
+SELECT *
+FROM joined

@@ -1,4 +1,18 @@
 Scale_notes.md
+## Partitioning and clustering implemented
+
+fct_revenue
+- partition_by: order_date (day granularity)
+- cluster_by: user_id
+- Reason: revenue queries filter by date range and group by user and status
+
+mart_product_metrics
+- partition_by: event_date (day granularity)
+- Reason: DAU queries always filter by date, partition eliminates full scans
+
+mart_growth_metrics
+- partition_by: metric_date (day granularity)
+- Reason: growth metric queries are date-range based by nature
 
 ## fct_revenue at 500M rows
 Current issue: no partitioning, full table scan on every query
