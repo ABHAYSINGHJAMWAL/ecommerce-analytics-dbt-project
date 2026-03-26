@@ -1,0 +1,4 @@
+refund_id,order_id,refund_amount,reason,refund_timestamp
+1,101,500,Customer request,2024-01-10 11:00:00
+2,101,600,Adjustment error,2024-01-11 11:00:00
+3,103,100,Test refund,2024-01-08 12:00:00
