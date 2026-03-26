@@ -2,10 +2,12 @@ version: 2
 
 sources:
   - name: raw
-    schema: raw
+    database: analytics-warehouse-dev-major   # your project
+    schema: dbt_dev_raw                      # 🔥 THIS IS THE FIX
+
     tables:
-      - name: orders_raw
       - name: users_raw
+      - name: orders_raw
       - name: refunds_raw
       - name: events_raw
 
@@ -145,3 +147,161 @@ models:
         tests:
           - not_null
           - unique
+          
+  - name: mart_product_metrics
+    description: "Daily product metrics including DAU, total events, purchases and conversion rate"
+    columns:
+
+      - name: event_day
+        description: "Day of recorded product activity"
+        tests:
+          - not_null
+          - unique
+
+      - name: daily_active_users
+        description: "Number of distinct users active that day"
+        tests:
+          - not_null
+
+      - name: total_events
+        description: "Total number of product events recorded that day"
+        tests:
+          - not_null
+
+      - name: purchases
+        description: "Number of purchase events per day"
+        tests:
+          - not_null
+
+      - name: purchase_conversion_rate
+        description: "Purchase conversion rate calculated as purchases divided by total events"
+
+
+  - name: mart_multi_step_funnel
+    description: "Multi-step product funnel showing number of users at each step of the purchase journey"
+
+    columns:
+
+      - name: step
+        description: "Funnel step in the product journey (view_product, add_to_cart, checkout, purchase)"
+        tests:
+          - not_null
+          - unique
+
+      - name: users
+        description: "Number of unique users reaching each funnel step"
+        tests:
+          - not_null
+  - name: mart_ab_test_results
+    description: "A/B test experiment results comparing control and treatment groups based on conversion"
+
+    columns:
+
+      - name: experiment_group
+        description: "Experiment bucket assigned to the user (control or treatment)"
+        tests:
+          - not_null
+          - unique
+
+      - name: users
+        description: "Total number of users in each experiment group"
+        tests:
+          - not_null
+
+      - name: purchases
+        description: "Number of users who completed purchase in each experiment group"
+        tests:
+          - not_null
+
+      - name: purchase_conversion_rate
+        description: "Purchase conversion rate calculated as purchases divided by total users"
+        tests:
+          - not_null     
+  - name: mart_growth_metrics
+    description: "Daily product growth metrics including DAU, WAU, MAU and stickiness"
+
+    columns:
+
+      - name: event_day
+        description: "Day of recorded product activity"
+        tests:
+          - not_null
+          - unique
+
+      - name: dau
+        description: "Daily active users"
+        tests:
+          - not_null
+
+      - name: wau
+        description: "Weekly active users"
+        tests:
+          - not_null
+
+      - name: mau
+        description: "Monthly active users"
+        tests:
+          - not_null
+
+      
+
+  - name: mart_user_sessions
+    description: "User session analytics showing session duration and engagement"
+
+    columns:
+
+      - name: user_id
+        tests:
+          - not_null
+
+      - name: session_id
+        tests:
+          - not_null
+
+      - name: session_start
+        tests:
+          - not_null
+
+      - name: session_end
+        tests:
+          - not_null
+
+      - name: events_in_session
+        tests:
+          - not_null
+
+  - name: mart_feature_adoption
+    description: "Feature adoption metrics showing how many users interact with each product feature"
+
+    columns:
+
+      - name: feature
+        tests:
+          - not_null
+          - unique
+
+      - name: users_using_feature
+        tests:
+          - not_null
+
+      - name: total_users
+        tests:
+          - not_null
+
+      - name: adoption_rate
+        tests:
+          - not_null
+          
+  - name: mart_sequential_funnel
+    description: "Sequential funnel analysis enforcing correct order of product journey steps"
+
+    columns:
+
+      - name: step
+        tests:
+          - not_null
+          - unique
+
+      - name: users
+        tests:
+          - not_null

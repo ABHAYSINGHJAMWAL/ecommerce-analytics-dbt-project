@@ -1,18 +1,18 @@
 {{ config(materialized = 'table') }}
  
- with revenue as (
-    select *
-    from {{ ref('fct_revenue') }}
+WITH revenue AS (
+    SELECT *
+    FROM {{ ref('fct_revenue') }}
+),
 
- ),
+aggregated AS (
+    SELECT 
+        DATE_TRUNC(order_timestamp, MONTH) AS revenue_month,
+        SUM(order_amount) AS total_revenue,
+        COUNT(order_id) AS total_orders
+    FROM revenue
+    GROUP BY revenue_month
+)
 
- aggregated as (
-     select date_trunc('month',order_timestamp) as revenue_month,
-     sum(order_amount) as total_revenue,
-     count(order_id) as total_orders
-     from revenue
-     group by 1
-
- )
- select *
- from aggregated
+SELECT *
+FROM aggregated

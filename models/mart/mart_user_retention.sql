@@ -1,28 +1,39 @@
 {{ config(materialized = 'table' ) }}
 
-with users as (
-    select user_id,date_trunc('month',signup_timestamp) as cohort_month
-    from {{ ref('stg_users') }}
+WITH users AS (
+    SELECT 
+        user_id,
+        DATE_TRUNC(signup_timestamp, MONTH) AS cohort_month
+    FROM {{ ref('stg_users') }}
 ),
 
-orders as (
-    select user_id,date_trunc('month',order_timestamp) as order_month 
-    from {{ ref('fct_revenue') }}
+orders AS (
+    SELECT 
+        user_id,
+        DATE_TRUNC(order_timestamp, MONTH) AS order_month
+    FROM {{ ref('fct_revenue') }}
 ),
 
-joined as (
-    select u.cohort_month,o.order_month,o.user_id
-    from users u
-    join orders o
-    on u.user_id = o.user_id
-    where o.order_month >= u.cohort_month
-
+joined AS (
+    SELECT 
+        u.cohort_month,
+        o.order_month,
+        o.user_id
+    FROM users u
+    JOIN orders o
+        ON u.user_id = o.user_id
+    WHERE o.order_month >= u.cohort_month
 ),
-aggregated as (
-    select cohort_month,order_month,count(distinct user_id) as active_users
-    from joined
-    group by 1,2
+
+aggregated AS (
+    SELECT 
+        cohort_month,
+        order_month,
+        COUNT(DISTINCT user_id) AS active_users
+    FROM joined
+    GROUP BY cohort_month, order_month
 )
-select *
-from aggregated
-order by cohort_month,order_month
+
+SELECT *
+FROM aggregated
+ORDER BY cohort_month, order_month

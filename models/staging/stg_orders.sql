@@ -12,7 +12,7 @@ from source
 ),
 
 cleaned as (SELECT
-order_id,user_id,order_timestamp,coalesce(order_amount,0) as order_amount,
+order_id,user_id,created_at as order_timestamp,coalesce(amount,0) as order_amount,
 upper(currency) as currency,created_at
 from deduplicated
 where rn = 1
