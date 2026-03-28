@@ -222,7 +222,7 @@ models:
 
     columns:
 
-      - name: event_day
+      - name: event_date
         description: "Day of recorded product activity"
         tests:
           - not_null

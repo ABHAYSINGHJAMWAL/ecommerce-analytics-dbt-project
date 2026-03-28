@@ -23,6 +23,6 @@ SELECT
     daily_active_users,
     total_events,
     purchases,
-    SAFE_DIVIDE(CAST(purchases AS FLOAT64), total_events) AS purchase_conversion_rate
+    {{ safe_divide('purchases', 'total_events') }} AS purchase_conversion_rate
 FROM daily_activity
 ORDER BY event_day
