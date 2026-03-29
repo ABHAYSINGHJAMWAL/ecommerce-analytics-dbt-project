@@ -8,7 +8,11 @@
 ) }}
 
 WITH all_dates AS (
-    {{ date_spine('DAY', '2024-01-01', '2024-12-31') }}
+    {{ dbt_utils.date_spine(
+        datepart="day",
+        start_date="cast('2024-01-01' as date)",
+        end_date="cast('2024-12-31' as date)"
+    ) }}
 ),
 
 events AS (
@@ -43,7 +47,7 @@ mau AS (
 )
 
 SELECT
-    d.spine_date AS event_date,
+    DATE(d.date_day) AS event_date,   -- ✅ FIXED (uppercase + explicit)
     COALESCE(da.dau, 0) AS dau,
     w.wau,
     m.mau,
@@ -51,10 +55,11 @@ SELECT
 FROM all_dates d
 
 LEFT JOIN dau da
-    ON d.spine_date = da.event_date
+    ON d.date_day = da.event_date
 
 LEFT JOIN wau w
-    ON DATE_TRUNC(d.spine_date, WEEK) = w.week_start
+    ON DATE_TRUNC(d.date_day, WEEK) = w.week_start
 
 LEFT JOIN mau m
-    ON DATE_TRUNC(d.spine_date, MONTH) = m.month_start
+    ON DATE_TRUNC(d.date_day, MONTH) = m.month_start
+

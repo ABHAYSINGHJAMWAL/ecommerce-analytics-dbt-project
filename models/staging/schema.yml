@@ -2,8 +2,8 @@ version: 2
 
 sources:
   - name: raw
-    database: analytics-warehouse-dev-major   # your project
-    schema: dbt_dev_raw                      # 🔥 THIS IS THE FIX
+    database: analytics-warehouse-dev-major
+    schema: dbt_dev_raw
 
     tables:
       - name: users_raw
@@ -20,49 +20,50 @@ models:
   - name: stg_orders
     columns:
       - name: order_id
-        tests:
-          - not_null
-          - unique
+        tests: [not_null, unique]
 
       - name: user_id
+        tests: [not_null]
+
+      - name: order_amount
         tests:
           - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
+              max_value: 1000000
+
+      - name: order_status
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_in_set:
+              value_set: ['pending', 'completed', 'cancelled', 'refunded']
 
   - name: stg_users
     columns:
       - name: user_id
-        tests:
-          - not_null
-          - unique
+        tests: [not_null, unique]
 
       - name: signup_timestamp
-        tests:
-          - not_null
+        tests: [not_null]
 
   - name: stg_refunds
     columns:
       - name: refund_id
-        tests:
-          - not_null
-          - unique
+        tests: [not_null, unique]
 
       - name: order_id
-        tests:
-          - not_null
+        tests: [not_null]
 
   - name: stg_events
     columns:
       - name: user_id
-        tests:
-          - not_null
+        tests: [not_null]
 
       - name: event_name
-        tests:
-          - not_null
+        tests: [not_null]
 
       - name: event_timestamp
-        tests:
-          - not_null
+        tests: [not_null]
 
   # ------------------------
   # INTERMEDIATE
@@ -71,237 +72,168 @@ models:
   - name: int_orders_enriched
     columns:
       - name: order_id
-        tests:
-          - not_null
-          - unique
+        tests: [not_null, unique]
 
       - name: user_id
-        tests:
-          - not_null
+        tests: [not_null]
 
   - name: int_order_refunds
     columns:
       - name: order_id
-        tests:
-          - not_null
-          - unique
+        tests: [not_null, unique]
 
   # ------------------------
   # MART
   # ------------------------
 
   - name: fct_revenue
+    tests:
+      - dbt_expectations.expect_table_row_count_to_be_between:
+          min_value: 1
+          max_value: 10000000
+
     columns:
       - name: order_id
-        tests:
-          - not_null
-          - unique
+        tests: [not_null, unique]
 
       - name: net_revenue
         tests:
           - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: -10000
+              max_value: 1000000
 
-  - name: total_refund_amount
+  - name: mart_monthly_revenue
     columns:
       - name: revenue_month
-        tests:
-          - not_null
-          - unique
+        tests: [not_null, unique]
 
       - name: total_revenue
-        tests:
-          - not_null
-  - name: mart_user_retention
-    description: "Monthly user retention cohort model"
+        tests: [not_null]
 
+  - name: mart_user_retention
     columns:
       - name: cohort_month
-        tests:
-          - not_null
+        tests: [not_null]
 
       - name: order_month
-        tests:
-          - not_null
+        tests: [not_null]
 
       - name: active_users
-        tests:
-          - not_null
-          
-  - name: mart_user_ltv
-    description: "Customer lifetime value model"
+        tests: [not_null]
 
+  - name: mart_user_ltv
     columns:
       - name: user_id
-        tests:
-          - not_null
-          - unique
+        tests: [not_null, unique]
 
       - name: lifetime_revenue
-        tests:
-          - not_null
-
+        tests: [not_null]
 
   - name: mart_funnel_conversion
     columns:
       - name: user_id
-        tests:
-          - not_null
-          - unique
-          
-  - name: mart_product_metrics
-    description: "Daily product metrics including DAU, total events, purchases and conversion rate"
-    columns:
+        tests: [not_null, unique]
 
+  - name: mart_product_metrics
+    columns:
       - name: event_day
-        description: "Day of recorded product activity"
-        tests:
-          - not_null
-          - unique
+        tests: [not_null, unique]
 
       - name: daily_active_users
-        description: "Number of distinct users active that day"
-        tests:
-          - not_null
+        tests: [not_null]
 
       - name: total_events
-        description: "Total number of product events recorded that day"
-        tests:
-          - not_null
+        tests: [not_null]
 
       - name: purchases
-        description: "Number of purchase events per day"
-        tests:
-          - not_null
+        tests: [not_null]
 
       - name: purchase_conversion_rate
-        description: "Purchase conversion rate calculated as purchases divided by total events"
-
+        tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
+              max_value: 1
 
   - name: mart_multi_step_funnel
-    description: "Multi-step product funnel showing number of users at each step of the purchase journey"
-
     columns:
-
       - name: step
-        description: "Funnel step in the product journey (view_product, add_to_cart, checkout, purchase)"
-        tests:
-          - not_null
-          - unique
+        tests: [not_null, unique]
 
       - name: users
-        description: "Number of unique users reaching each funnel step"
-        tests:
-          - not_null
+        tests: [not_null]
+
   - name: mart_ab_test_results
-    description: "A/B test experiment results comparing control and treatment groups based on conversion"
-
     columns:
-
       - name: experiment_group
-        description: "Experiment bucket assigned to the user (control or treatment)"
-        tests:
-          - not_null
-          - unique
+        tests: [not_null, unique]
 
       - name: users
-        description: "Total number of users in each experiment group"
-        tests:
-          - not_null
+        tests: [not_null]
 
       - name: purchases
-        description: "Number of users who completed purchase in each experiment group"
-        tests:
-          - not_null
+        tests: [not_null]
 
       - name: purchase_conversion_rate
-        description: "Purchase conversion rate calculated as purchases divided by total users"
-        tests:
-          - not_null     
-  - name: mart_growth_metrics
-    description: "Daily product growth metrics including DAU, WAU, MAU and stickiness"
-
-    columns:
-
-      - name: event_date
-        description: "Day of recorded product activity"
         tests:
           - not_null
-          - unique
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
+              max_value: 1
+
+  - name: mart_growth_metrics
+    columns:
+      - name: event_date
+        tests: [not_null, unique]
 
       - name: dau
-        description: "Daily active users"
-        tests:
-          - not_null
+        tests: [not_null]
 
       - name: wau
-        description: "Weekly active users"
-        tests:
-          - not_null
+        tests: [not_null]
 
       - name: mau
-        description: "Monthly active users"
-        tests:
-          - not_null
-
-      
+        tests: [not_null]
 
   - name: mart_user_sessions
-    description: "User session analytics showing session duration and engagement"
-
     columns:
-
       - name: user_id
-        tests:
-          - not_null
+        tests: [not_null]
 
       - name: session_id
-        tests:
-          - not_null
+        tests: [not_null]
 
       - name: session_start
-        tests:
-          - not_null
+        tests: [not_null]
 
       - name: session_end
-        tests:
-          - not_null
+        tests: [not_null]
 
       - name: events_in_session
-        tests:
-          - not_null
+        tests: [not_null]
 
   - name: mart_feature_adoption
-    description: "Feature adoption metrics showing how many users interact with each product feature"
-
     columns:
-
       - name: feature
-        tests:
-          - not_null
-          - unique
+        tests: [not_null, unique]
 
       - name: users_using_feature
-        tests:
-          - not_null
+        tests: [not_null]
 
       - name: total_users
-        tests:
-          - not_null
+        tests: [not_null]
 
       - name: adoption_rate
         tests:
           - not_null
-          
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
+              max_value: 1
+
   - name: mart_sequential_funnel
-    description: "Sequential funnel analysis enforcing correct order of product journey steps"
-
     columns:
-
       - name: step
-        tests:
-          - not_null
-          - unique
+        tests: [not_null, unique]
 
       - name: users
-        tests:
-          - not_null
+        tests: [not_null]

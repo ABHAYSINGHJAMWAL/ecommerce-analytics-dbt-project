@@ -47,5 +47,5 @@ SELECT
     experiment_group,
     users,
     purchases,
-    SAFE_DIVIDE(CAST(purchases AS FLOAT64), users) AS purchase_conversion_rate
+    {{ safe_divide('purchases','users') }} AS purchase_conversion_rate
 FROM aggregated
