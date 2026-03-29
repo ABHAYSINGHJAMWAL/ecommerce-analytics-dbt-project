@@ -20,3 +20,15 @@ Mart models are queried by BI tools and analysts frequently. View materializatio
 
 ## fct_revenue incremental to table change
 BigQuery free tier does not support DML operations like MERGE without enabling billing. Incremental models in dbt use MERGE under the hood. Changed to table materialization to keep pipeline running end-to-end. In production would use incremental with partition_by order_date and cluster_by user_id.
+
+# Why dbt_expectations over basic tests
+Basic not_null and unique tests verify structure but not business logic.
+dbt_expectations adds statistical tests - value ranges, allowed values,
+row count bounds, column types. These catch business logic failures that
+structural tests miss entirely. Example: conversion_rate should always
+be between 0 and 1 - a basic test cannot verify this, dbt_expectations can.
+
+## Why dbt_utils
+Replaces custom macro implementations with battle-tested dbt Labs versions.
+date_spine from dbt_utils handles edge cases our custom version missed.
+Using maintained packages reduces maintenance burden on the data team.
