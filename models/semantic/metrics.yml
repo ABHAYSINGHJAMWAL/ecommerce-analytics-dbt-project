@@ -1,0 +1,44 @@
+metrics:
+  - name: daily_active_users
+    description: "Unique active users per day. Primary growth health metric."
+    label: "DAU"
+    type: simple
+    type_params:
+      measure: daily_active_users
+    
+  - name: weekly_active_users
+    description: "Unique active users in a rolling week."
+    label: "WAU"
+    type: simple
+    type_params:
+      measure: weekly_active_users
+
+  - name: monthly_active_users
+    description: "Unique active users in a rolling month."
+    label: "MAU"
+    type: simple
+    type_params:
+      measure: monthly_active_users
+
+  - name: dau_mau_stickiness
+    description: "DAU divided by MAU. Measures how often monthly users return daily. Higher = stickier product."
+    label: "Stickiness ratio"
+    type: ratio
+    type_params:
+      numerator: daily_active_users
+      denominator: monthly_active_users
+
+  - name: total_net_revenue
+    description: "Total revenue after refund adjustments."
+    label: "Net revenue"
+    type: simple
+    type_params:
+      measure: net_revenue
+
+  - name: average_order_value
+    description: "Average revenue per order."
+    label: "AOV"
+    type: ratio
+    type_params:
+      numerator: total_revenue
+      denominator: order_count

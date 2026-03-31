@@ -1,0 +1,29 @@
+semantic_models:
+  - name: growth_metrics
+    description: "Daily user activity and engagement metrics"
+    model: ref('mart_growth_metrics')
+    
+    entities:
+      - name: activity_date
+        type: primary
+        expr: event_date
+    
+    dimensions:
+      - name: event_date
+        type: time
+        type_params:
+          time_granularity: day
+    
+    measures:
+      - name: daily_active_users
+        description: "Count of unique active users per day"
+        agg: sum
+        expr: dau
+      - name: weekly_active_users
+        description: "Count of unique active users per week"
+        agg: sum
+        expr: wau
+      - name: monthly_active_users
+        description: "Count of unique active users per month"
+        agg: sum
+        expr: mau
