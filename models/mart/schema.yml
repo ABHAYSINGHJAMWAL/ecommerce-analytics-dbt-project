@@ -1,0 +1,30 @@
+models:
+  - name: fct_revenue
+    config:
+      contract:
+        enforced: true
+    columns:
+      - name: order_id
+        data_type: string
+        constraints:
+          - type: not_null
+      - name: user_id
+        data_type: string
+        constraints:
+          - type: not_null
+      - name: order_timestamp
+        data_type: timestamp
+      - name: order_date
+        data_type: date
+      - name: order_amount
+        data_type: numeric
+      - name: currency
+        data_type: string
+      - name: country
+        data_type: string
+      - name: acquisition_channel
+        data_type: string
+      - name: total_refund_amount
+        data_type: numeric
+      - name: net_revenue
+        data_type: numeric

@@ -5,17 +5,31 @@
     from {{ source('raw', 'orders_raw') }}
 ),
 
-deduplicated as (
-select *,row_number() over( partition by order_id order by created_at desc ) as rn
-from source
 
+
+deduplicated AS (
+    SELECT *,
+        ROW_NUMBER() OVER (
+            PARTITION BY order_id
+            ORDER BY created_at DESC
+        ) AS rn
+    FROM source
 ),
 
-cleaned as (SELECT
-order_id,user_id,created_at as order_timestamp,coalesce(amount,0) as order_amount,
-upper(currency) as currency,created_at
-from deduplicated
-where rn = 1
+cleaned AS (
+    SELECT
+        CAST(order_id AS STRING) AS order_id,
+        CAST(user_id AS STRING) AS user_id,
+
+        CAST(created_at AS TIMESTAMP) AS order_timestamp,
+        CAST(created_at AS TIMESTAMP) AS created_at,
+
+        CAST(COALESCE(amount, 0) AS NUMERIC ) AS order_amount,
+
+        UPPER(currency) AS currency
+    FROM deduplicated
+    WHERE rn = 1
 )
-select *
- from cleaned
+
+SELECT * 
+FROM cleaned

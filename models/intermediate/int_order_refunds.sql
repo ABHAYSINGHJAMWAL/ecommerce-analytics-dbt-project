@@ -1,16 +1,20 @@
 {{ config(materialized = 'view') }}
 
-with refunds as (
-    select *
-    from {{ ref('stg_refunds') }}
-
+WITH refunds AS (
+    SELECT *
+    FROM {{ ref('stg_refunds') }}
 ),
 
-aggregated as (
-select order_id,sum(refund_amount) as total_refunded_amount
-from refunds
-group by 1
-
+aggregated AS (
+    SELECT
+        CAST(order_id AS STRING) AS order_id,
+        SUM(CAST(refund_amount AS NUMERIC )) AS total_refunded_amount
+    FROM refunds
+    GROUP BY 1
 )
-select *
-from aggregated
+
+
+SELECT
+    order_id,
+    total_refunded_amount
+FROM aggregated

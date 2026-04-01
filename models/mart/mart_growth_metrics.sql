@@ -47,7 +47,7 @@ mau AS (
 )
 
 SELECT
-    DATE(d.date_day) AS event_date,   -- ✅ FIXED (uppercase + explicit)
+    DATE(d.date_day) AS event_date,   
     COALESCE(da.dau, 0) AS dau,
     w.wau,
     m.mau,

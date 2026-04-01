@@ -16,13 +16,14 @@ deduplicated as (
 
 ),
 
-cleaned as (
-
-    select
- user_id, signup_timestamp,lower(trim(country)) as country, lower(trim(acquisition_channel)) as acquisition_channel
-    from deduplicated
-    where rn = 1
-
+cleaned AS (
+    SELECT
+        CAST(user_id AS STRING) AS user_id,
+        CAST(signup_timestamp AS TIMESTAMP) AS signup_timestamp,
+        LOWER(TRIM(country)) AS country,
+        LOWER(TRIM(acquisition_channel)) AS acquisition_channel
+    FROM deduplicated
+    WHERE rn = 1
 )
 
 select *

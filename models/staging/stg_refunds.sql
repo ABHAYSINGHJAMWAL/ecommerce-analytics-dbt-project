@@ -1,18 +1,32 @@
 {{ config(materialized = 'view') }}
-with source as (
-    select *
-    from {{ source('raw','refunds_raw') }}
+
+WITH source AS (
+    SELECT *
+    FROM {{ source('raw','refunds_raw') }}
 ),
 
-deduplicated as (
-    select*,row_number() over ( partition by refund_id order by refund_timestamp desc) as rn
-    from source
+deduplicated AS (
+    SELECT *,
+        ROW_NUMBER() OVER (
+            PARTITION BY refund_id
+            ORDER BY refund_timestamp DESC
+        ) AS rn
+    FROM source
 ),
 
-cleaned as (
-    select refund_id,order_id,refund_amount,refund_timestamp
-    from deduplicated
-    where rn = 1
+cleaned AS (
+    SELECT
+        CAST(refund_id AS STRING) AS refund_id,
+        CAST(order_id AS STRING) AS order_id,
+        CAST(refund_amount AS NUMERIC) AS refund_amount,
+        CAST(refund_timestamp AS TIMESTAMP) AS refund_timestamp
+    FROM deduplicated
+    WHERE rn = 1
 )
-select *
-from cleaned
+
+SELECT
+    refund_id,
+    order_id,
+    refund_amount,
+    refund_timestamp
+FROM cleaned
