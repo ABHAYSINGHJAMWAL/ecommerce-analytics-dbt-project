@@ -35,6 +35,20 @@ metrics:
     type_params:
       measure: net_revenue
 
+  - name: total_revenue
+    description: "Total gross revenue before refunds."
+    label: "Total revenue"
+    type: simple
+    type_params:
+      measure: total_revenue
+
+  - name: order_count
+    description: "Total number of orders."
+    label: "Order count"
+    type: simple
+    type_params:
+      measure: order_count
+
   - name: average_order_value
     description: "Average revenue per order."
     label: "AOV"

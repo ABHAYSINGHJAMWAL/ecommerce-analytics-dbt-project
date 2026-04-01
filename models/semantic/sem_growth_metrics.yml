@@ -19,11 +19,14 @@ semantic_models:
         description: "Count of unique active users per day"
         agg: sum
         expr: dau
+        agg_time_dimension: event_date
       - name: weekly_active_users
         description: "Count of unique active users per week"
         agg: sum
         expr: wau
+        agg_time_dimension: event_date
       - name: monthly_active_users
         description: "Count of unique active users per month"
         agg: sum
         expr: mau
+        agg_time_dimension: event_date
