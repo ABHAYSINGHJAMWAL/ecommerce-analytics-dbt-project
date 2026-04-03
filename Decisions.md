@@ -32,3 +32,39 @@ be between 0 and 1 - a basic test cannot verify this, dbt_expectations can.
 Replaces custom macro implementations with battle-tested dbt Labs versions.
 date_spine from dbt_utils handles edge cases our custom version missed.
 Using maintained packages reduces maintenance burden on the data team.
+
+If contracts pass — your model output matches exactly what you declared. If a contract fails — dbt tells you which column has the wrong type or is missing. Fix it and run again.
+
+**Why this matters in interviews:**
+
+> "How do you prevent breaking changes in your pipeline?"
+
+Your answer: "I use dbt model contracts on critical models like fact tables and staging models. If someone renames a column or changes a data type, the contract fails at compile time before any downstream model breaks. It's the difference between catching a breaking change in development versus at 3am when the pipeline runs."
+
+## Why model contracts on fct_revenue and stg_orders
+Contracts enforce schema at compile time. If a column is renamed or 
+a data type changes, dbt fails immediately during compilation instead
+of failing at runtime when downstream models break. Critical models
+like fact tables and staging models need this protection because
+many downstream models depend on their schema being stable.
+
+## Why source freshness checks
+The most dangerous pipeline failure is silent — models run successfully
+but on stale data. Source freshness checks prevent this by verifying
+raw tables received new data within the expected window before models
+run. orders_raw warns after 24 hours, errors after 48 hours.
+
+## Why folder-level materialization enforcement in dbt_project.yml
+Explicit folder-level config prevents accidental misconfiguration.
+A developer adding a new staging model automatically gets view
+materialization without having to remember to set it. Governance
+at the config level beats governance through documentation alone.
+
+## Why source freshness not implemented
+Raw data loaded via dbt seeds (static CSV files). Seeds do not have
+a dynamic loaded_at timestamp that updates with each load.
+Source freshness requires a timestamp column that reflects actual
+data arrival time — not applicable to static seed data.
+Production implementation: configure loaded_at_field on all raw
+tables loaded by Fivetran or Airbyte with warn_after 4 hours
+and error_after 8 hours for critical tables like orders and events.
