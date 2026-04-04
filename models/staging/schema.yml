@@ -10,6 +10,7 @@ sources:
       - name: orders_raw
       - name: refunds_raw
       - name: events_raw
+      - name: experiment_assignments_raw
 
 models:
 
@@ -159,24 +160,7 @@ models:
       - name: users
         tests: [not_null]
 
-  - name: mart_ab_test_results
-    columns:
-      - name: experiment_group
-        tests: [not_null, unique]
-
-      - name: users
-        tests: [not_null]
-
-      - name: purchases
-        tests: [not_null]
-
-      - name: purchase_conversion_rate
-        tests:
-          - not_null
-          - dbt_expectations.expect_column_values_to_be_between:
-              min_value: 0
-              max_value: 1
-
+ 
   - name: mart_growth_metrics
     columns:
       - name: event_date

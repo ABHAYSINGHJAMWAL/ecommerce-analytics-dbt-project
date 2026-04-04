@@ -1,3 +1,5 @@
+version: 2
+
 models:
   - name: fct_revenue
     config:
@@ -28,3 +30,45 @@ models:
         data_type: numeric
       - name: net_revenue
         data_type: numeric
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: -10000
+              max_value: 1000000
+
+  - name: mart_ab_test_results
+    columns:
+      - name: experiment_id
+        tests:
+          - not_null
+          - unique
+      - name: experiment_name
+        tests:
+          - not_null
+      - name: control_users
+        tests:
+          - not_null
+      - name: treatment_users
+        tests:
+          - not_null
+      - name: control_conversion_rate
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
+              max_value: 1
+      - name: treatment_conversion_rate
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
+              max_value: 1
+      - name: sample_ratio_mismatch
+        tests:
+          - not_null
+      - name: is_significant
+        tests:
+          - not_null
+      - name: has_minimum_duration
+        tests:
+          - not_null

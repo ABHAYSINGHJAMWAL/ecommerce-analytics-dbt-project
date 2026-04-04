@@ -1,0 +1,11 @@
+assignment_id,experiment_id,experiment_name,user_id,experiment_group,assigned_at,experiment_start_date
+1,exp_001,checkout_redesign_v1,101,control,2024-01-05,2024-01-05
+2,exp_001,checkout_redesign_v1,102,treatment,2024-01-05,2024-01-05
+3,exp_001,checkout_redesign_v1,103,control,2024-01-05,2024-01-05
+4,exp_001,checkout_redesign_v1,104,treatment,2024-01-06,2024-01-06
+5,exp_001,checkout_redesign_v1,105,control,2024-01-06,2024-01-06
+6,exp_001,checkout_redesign_v1,106,treatment,2024-01-06,2024-01-06
+7,exp_002,onboarding_flow_v2,101,treatment,2024-01-07,2024-01-07
+8,exp_002,onboarding_flow_v2,102,control,2024-01-07,2024-01-07
+9,exp_002,onboarding_flow_v2,103,treatment,2024-01-07,2024-01-07
+10,exp_002,onboarding_flow_v2,104,control,2024-01-07,2024-01-07

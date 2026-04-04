@@ -21,15 +21,23 @@ models:
       +materialized: view
       +schema: staging
       +tags: ["staging"]
+
     intermediate:
       +materialized: view
       +schema: intermediate
       +tags: ["intermediate"]
+
     mart:
       +materialized: table
       +schema: mart
       +tags: ["mart"]
+
     semantic:
       +materialized: table
       +schema: mart
       +tags: ["semantic"]
+
+seeds:
+  ecommerce_dbt:
+    raw:
+      +schema: raw
