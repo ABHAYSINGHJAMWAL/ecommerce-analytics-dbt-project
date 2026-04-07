@@ -67,4 +67,5 @@ Source freshness requires a timestamp column that reflects actual
 data arrival time — not applicable to static seed data.
 Production implementation: configure loaded_at_field on all raw
 tables loaded by Fivetran or Airbyte with warn_after 4 hours
-and error_after 8 hours for critical tables like orders and events.
+and error_after 8 hours for critical tables like orders and events. 
+
