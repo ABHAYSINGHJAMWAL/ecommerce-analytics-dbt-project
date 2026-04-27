@@ -6,7 +6,7 @@ semantic_models:
     entities:
       - name: activity_date
         type: primary
-        expr: event_date
+        expr: event_date        
     
     dimensions:
       - name: event_date

@@ -11,6 +11,7 @@ sources:
       - name: refunds_raw
       - name: events_raw
       - name: experiment_assignments_raw
+      - name: user_pre_experiment_raw   # ✅ FIXED
 
 models:
 
@@ -30,26 +31,32 @@ models:
         tests:
           - not_null
           - unique
+
       - name: user_id
         data_type: string
         constraints:
           - type: not_null
         tests:
           - not_null
+
       - name: order_timestamp
         data_type: timestamp
+
       - name: order_amount
         data_type: numeric
         tests:
           - not_null
           - dbt_expectations.expect_column_values_to_be_between:
-              min_value: 0
-              max_value: 1000000
+              arguments:
+                min_value: 0
+                max_value: 1000000
+
       - name: currency
         data_type: string
+
       - name: created_at
         data_type: timestamp
-      
+
   - name: stg_users
     columns:
       - name: user_id
@@ -77,6 +84,39 @@ models:
       - name: event_timestamp
         tests: [not_null]
 
+  
+  - name: stg_user_pre_experiment
+    columns:
+      - name: user_id
+        tests: [not_null, unique]
+
+      - name: pre_experiment_purchases
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              arguments:
+                min_value: 0
+                max_value: 1000000
+
+      - name: pre_experiment_events
+        tests:
+          - not_null
+
+      - name: observation_period_days
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              arguments:
+                min_value: 1
+                max_value: 3650
+
+      - name: pre_experiment_conversion_rate
+        tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              arguments:
+                min_value: 0
+                max_value: 10   
+
   # ------------------------
   # INTERMEDIATE
   # ------------------------
@@ -97,8 +137,6 @@ models:
   # ------------------------
   # MART
   # ------------------------
-
-  
 
   - name: mart_monthly_revenue
     columns:
@@ -149,8 +187,9 @@ models:
       - name: purchase_conversion_rate
         tests:
           - dbt_expectations.expect_column_values_to_be_between:
-              min_value: 0
-              max_value: 1
+              arguments:
+                min_value: 0
+                max_value: 1
 
   - name: mart_multi_step_funnel
     columns:
@@ -160,7 +199,6 @@ models:
       - name: users
         tests: [not_null]
 
- 
   - name: mart_growth_metrics
     columns:
       - name: event_date
@@ -207,8 +245,9 @@ models:
         tests:
           - not_null
           - dbt_expectations.expect_column_values_to_be_between:
-              min_value: 0
-              max_value: 1
+              arguments:
+                min_value: 0
+                max_value: 1
 
   - name: mart_sequential_funnel
     columns:
