@@ -4,7 +4,7 @@ WITH experiment_assignments AS (
     SELECT
         experiment_id,
         experiment_name,
-        user_id,
+        CAST(user_id AS STRING) AS user_id,   
         experiment_group,
         assigned_at,
         experiment_start_date
@@ -12,14 +12,15 @@ WITH experiment_assignments AS (
 ),
 
 purchases AS (
-    SELECT DISTINCT user_id
+    SELECT DISTINCT 
+        CAST(user_id AS STRING) AS user_id   
     FROM {{ ref('stg_events') }}
     WHERE event_name = 'purchase'
 ),
 
 pre_experiment AS (
     SELECT
-        user_id,
+        user_id,   -- already STRING
         pre_experiment_conversion_rate
     FROM {{ ref('stg_user_pre_experiment') }}
 ),
@@ -34,8 +35,12 @@ user_level AS (
         CASE WHEN p.user_id IS NOT NULL THEN 1 ELSE 0 END AS converted,
         COALESCE(pe.pre_experiment_conversion_rate, 0) AS pre_experiment_rate
     FROM experiment_assignments e
-    LEFT JOIN purchases p ON e.user_id = p.user_id
-    LEFT JOIN pre_experiment pe ON e.user_id = pe.user_id
+
+    LEFT JOIN purchases p 
+        ON e.user_id = p.user_id  
+
+    LEFT JOIN pre_experiment pe 
+        ON e.user_id = pe.user_id  
 ),
 
 cuped_stats AS (
@@ -105,7 +110,7 @@ final AS (
 
         CASE
             WHEN ABS(control_users - treatment_users) /
-                CAST(control_users + treatment_users AS FLOAT64) > 0.05
+                 CAST(control_users + treatment_users AS FLOAT64) > 0.05
             THEN TRUE ELSE FALSE
         END AS sample_ratio_mismatch,
 
@@ -124,6 +129,7 @@ final AS (
         END AS is_significant,
 
         DATE_DIFF(CURRENT_DATE(), experiment_start_date, DAY) AS days_running,
+
         CASE
             WHEN DATE_DIFF(CURRENT_DATE(), experiment_start_date, DAY) >= 7
             THEN TRUE ELSE FALSE
