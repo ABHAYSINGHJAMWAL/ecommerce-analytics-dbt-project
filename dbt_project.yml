@@ -41,3 +41,6 @@ seeds:
   ecommerce_dbt:
     raw:
       +schema: raw
+    
+  elementary:
+  schema: elementary

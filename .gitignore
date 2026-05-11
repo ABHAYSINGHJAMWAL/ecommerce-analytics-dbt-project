@@ -5,3 +5,4 @@ dbt_packages/
 __pycache__/
 .env 
 dbt_packages/
+*.json
