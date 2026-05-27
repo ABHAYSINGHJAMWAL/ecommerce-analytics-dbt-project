@@ -3,47 +3,54 @@ name: dbt CI Pipeline
 on:
   push:
     branches: [main]
+
   pull_request:
     branches: [main]
 
 jobs:
   dbt-test:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
-      
+        uses: actions/checkout@v4
+
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.10'
-      
+
       - name: Install dbt
         run: |
           pip install dbt-bigquery==1.7.0
-      
+
+      - name: Create GCP credentials file
+        run: |
+          echo '${{ secrets.GCP_CREDENTIALS }}' > /tmp/gcp-key.json
+
       - name: Create profiles.yml
         run: |
           mkdir -p ~/.dbt
-          cat > ~/.dbt/profiles.yml << 'EOF'
+
+          cat > ~/.dbt/profiles.yml << EOF
           analytics_warehouse_bq:
             target: ci
             outputs:
               ci:
                 type: bigquery
-                method: service-account-json
+                method: service-account
                 project: analytics-warehouse-dev-major
                 dataset: dbt_ci
-                keyfile_json: "{{ env_var('GCP_KEYFILE_JSON') }}"
+                keyfile: /tmp/gcp-key.json
                 threads: 4
                 timeout_seconds: 300
                 location: US
           EOF
-      
-      - name: Run dbt tests
-        env:
-          GCP_KEYFILE_JSON: ${{ secrets.GCP_CREDENTIALS }}
+
+      - name: Debug dbt connection
+        run: dbt debug --target ci
+
+      - name: Run dbt
         run: |
           dbt deps
           dbt run --target ci
