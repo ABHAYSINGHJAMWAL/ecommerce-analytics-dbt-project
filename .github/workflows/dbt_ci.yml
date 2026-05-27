@@ -23,6 +23,7 @@ jobs:
       - name: Install dbt
         run: |
           pip install dbt-bigquery==1.7.0
+          pip install google-cloud-bigquery==3.16.0
 
       - name: Create GCP credentials file
         run: |
