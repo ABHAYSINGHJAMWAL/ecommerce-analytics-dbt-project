@@ -48,7 +48,7 @@ models:
         tests:
           - not_null
           - dbt_expectations.expect_column_values_to_be_between:
-              arguments:
+              
                 min_value: 0
                 max_value: 1000000
 
@@ -188,7 +188,7 @@ models:
       - name: purchase_conversion_rate
         tests:
           - dbt_expectations.expect_column_values_to_be_between:
-              arguments:
+              
                 min_value: 0
                 max_value: 1
 
@@ -246,7 +246,7 @@ models:
         tests:
           - not_null
           - dbt_expectations.expect_column_values_to_be_between:
-              arguments:
+              
                 min_value: 0
                 max_value: 1
 
