@@ -3,7 +3,7 @@ version: 2
 sources:
   - name: raw
     database: analytics-warehouse-dev-major
-    schema: dbt_dev_raw
+    schema: dbt_ci_raw
 
     tables:
       - name: users_raw
