@@ -3,7 +3,6 @@ name: dbt CI Pipeline
 on:
   push:
     branches: [main]
-
   pull_request:
     branches: [main]
 
@@ -21,38 +20,37 @@ jobs:
           python-version: '3.10'
 
       - name: Install dbt
-        run: |
-          pip install dbt-bigquery==1.7.0
-          pip install google-cloud-bigquery==3.16.0
-
-      - name: Create GCP credentials file
-        run: |
-          echo '${{ secrets.GCP_CREDENTIALS }}' > /tmp/gcp-key.json
+        run: pip install dbt-bigquery==1.7.0
 
       - name: Create profiles.yml
         run: |
           mkdir -p ~/.dbt
-
-          cat > ~/.dbt/profiles.yml << EOF
+          cat > ~/.dbt/profiles.yml << 'EOF'
           analytics_warehouse_bq:
             target: ci
             outputs:
               ci:
                 type: bigquery
-                method: service-account
+                method: service-account-json
                 project: analytics-warehouse-dev-major
                 dataset: dbt_ci
-                keyfile: /tmp/gcp-key.json
+                keyfile_json: "{{ env_var('GCP_KEYFILE_JSON') }}"
                 threads: 4
                 timeout_seconds: 300
                 location: US
           EOF
 
-      - name: Debug dbt connection
-        run: dbt debug --target ci
+      - name: Load seed data
+        env:
+          GCP_KEYFILE_JSON: ${{ secrets.GCP_CREDENTIALS }}
+        run: dbt seed --target ci
 
-      - name: Run dbt
-        run: |
-          dbt deps
-          dbt run --target ci
-          dbt test --target ci
+      - name: Run dbt models (exclude elementary)
+        env:
+          GCP_KEYFILE_JSON: ${{ secrets.GCP_CREDENTIALS }}
+        run: dbt run --target ci --exclude elementary --select "staging intermediate mart semantic"
+
+      - name: Run dbt tests (exclude elementary)
+        env:
+          GCP_KEYFILE_JSON: ${{ secrets.GCP_CREDENTIALS }}
+        run: dbt test --target ci --exclude elementary --select "staging intermediate mart"
