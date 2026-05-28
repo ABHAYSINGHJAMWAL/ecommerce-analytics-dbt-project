@@ -56,12 +56,12 @@ jobs:
         run: dbt deps
 
       - name: Load seed data
-        run: dbt seed --target ci
+        run: dbt seed --target ci --exclude package:elementary
 
       - name: Run dbt models
         run: |
-          dbt run --target ci --exclude elementary
+          dbt run --target ci --exclude package:elementary
 
       - name: Run dbt tests
         run: |
-          dbt test --target ci --exclude elementary
+          dbt test --target ci --exclude package:elementary

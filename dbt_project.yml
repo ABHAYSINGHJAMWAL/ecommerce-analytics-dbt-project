@@ -37,16 +37,17 @@ models:
       +schema: mart
       +tags: ["semantic"]
 
+  elementary:
+    +enabled: false
+
 seeds:
   ecommerce_dbt:
     raw:
       +schema: raw
-    
-  elementary:
-  schema: elementary
-  vars:
+
+vars:
   elementary:
     enabled: false
-    flags:
+
+flags:
   require_explicit_package_overrides_for_builtin_materializations: false
-    
