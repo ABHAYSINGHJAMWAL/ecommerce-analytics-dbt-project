@@ -12,7 +12,7 @@ sources:
       - name: events_raw
       - name: experiment_assignments_raw
       - name: user_pre_experiment_raw   
-      - name: exchange_rates_raw
+      
 
 models:
 
