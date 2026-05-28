@@ -3,6 +3,7 @@ name: dbt CI Pipeline
 on:
   push:
     branches: [main]
+
   pull_request:
     branches: [main]
 
@@ -20,37 +21,47 @@ jobs:
           python-version: '3.10'
 
       - name: Install dbt
-        run: pip install dbt-bigquery==1.7.0
+        run: |
+          pip install dbt-bigquery==1.7.0
+          pip install google-cloud-bigquery==3.16.0
+
+      - name: Create GCP credentials file
+        run: |
+          echo '${{ secrets.GCP_CREDENTIALS }}' > /tmp/gcp-key.json
 
       - name: Create profiles.yml
         run: |
           mkdir -p ~/.dbt
-          cat > ~/.dbt/profiles.yml << 'EOF'
+
+          cat > ~/.dbt/profiles.yml << EOF
           analytics_warehouse_bq:
             target: ci
+
             outputs:
               ci:
                 type: bigquery
-                method: service-account-json
+                method: service-account
                 project: analytics-warehouse-dev-major
                 dataset: dbt_ci
-                keyfile_json: "{{ env_var('GCP_KEYFILE_JSON') }}"
+                keyfile: /tmp/gcp-key.json
                 threads: 4
                 timeout_seconds: 300
                 location: US
           EOF
 
+      - name: Debug dbt connection
+        run: dbt debug --target ci
+
+      - name: Install dbt packages
+        run: dbt deps
+
       - name: Load seed data
-        env:
-          GCP_KEYFILE_JSON: ${{ secrets.GCP_CREDENTIALS }}
         run: dbt seed --target ci
 
-      - name: Run dbt models (exclude elementary)
-        env:
-          GCP_KEYFILE_JSON: ${{ secrets.GCP_CREDENTIALS }}
-        run: dbt run --target ci --exclude elementary --select "staging intermediate mart semantic"
+      - name: Run dbt models
+        run: |
+          dbt run --target ci --exclude elementary
 
-      - name: Run dbt tests (exclude elementary)
-        env:
-          GCP_KEYFILE_JSON: ${{ secrets.GCP_CREDENTIALS }}
-        run: dbt test --target ci --exclude elementary --select "staging intermediate mart"
+      - name: Run dbt tests
+        run: |
+          dbt test --target ci --exclude elementary
