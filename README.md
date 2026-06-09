@@ -1,3 +1,26 @@
+# Architecture
+
+<img src="assets/dag.png" width="1000">
+
+# BigQuery Warehouse Structure
+
+<img src="assets/google_bigquery.png" width="1000">
+
+# Revenue Dashboard
+
+<img src="assets/dashboard_revenue.png" width="1000">
+
+# DAU / WAU / MAU Dashboard
+
+<img src="assets/dashboard_dau.png" width="1000">
+
+# Experimentation Dashboard
+
+<img src="assets/dashboard_experiments.png" width="1000">
+
+
+
+
 Production Analytics Warehouse — dbt + Google BigQuery
 A production-grade analytics data warehouse built to simulate how real product companies structure their analytics platform. Every architectural decision is documented with business reasoning. Every model is tested. Every failure mode is known before it happens.
 
